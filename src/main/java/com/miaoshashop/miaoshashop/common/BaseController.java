@@ -15,6 +15,9 @@ import java.util.Map;
 
 public class BaseController {
 
+    public static final String LOGIN_STATUS = "login_status";
+    public static final String USER_INFO = "user_info";
+
     public static final Logger log = LoggerFactory.getLogger(BaseController.class);
 
     @ExceptionHandler(Exception.class)

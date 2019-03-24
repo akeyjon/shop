@@ -15,14 +15,15 @@ import com.miaoshashop.miaoshashop.service.model.UserModel;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.Assert;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+@Service
 public class OrderServiceImpl implements OrderService {
 
     @Autowired
@@ -69,10 +70,12 @@ public class OrderServiceImpl implements OrderService {
         orderModel.setAmount(amount);
         orderModel.setItemPrice(itemModel.getPrice());
         orderModel.setOrderPrice(itemModel.getPrice().multiply(new BigDecimal(amount)));
-//        orderModel.setId(generateOrderId());
+        orderModel.setId(generateOrderId());
         OrderInfoDO orderInfoDO = convertFromOrderModelToOrderInfoDO(orderModel);
         orderInfoDOMapper.insertSelective(orderInfoDO);
         //对应商品表销量增加
+        itemModel.setSales(itemModel.getSales()+amount);
+        itemService.updateItem(itemModel);
         return orderModel;
 
     }
@@ -82,7 +85,7 @@ public class OrderServiceImpl implements OrderService {
      * @return
      */
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    private String generateOrderId(){
+    protected String generateOrderId(){
         //订单id 为16为数字
         StringBuilder sb = new StringBuilder();
         //前8位 年月日 20180234 代表订单生成日期

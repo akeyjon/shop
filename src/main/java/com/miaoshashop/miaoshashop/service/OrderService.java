@@ -6,7 +6,7 @@ import com.miaoshashop.miaoshashop.service.model.OrderModel;
 public interface OrderService {
 
     /**
-     *
+     *创建订单
      * @param userId
      * @param itemId
      * @param amount

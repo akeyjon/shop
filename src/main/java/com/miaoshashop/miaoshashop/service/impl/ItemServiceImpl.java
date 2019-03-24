@@ -6,14 +6,19 @@ import com.miaoshashop.miaoshashop.common.validator.ValidatorImpl;
 import com.miaoshashop.miaoshashop.common.validator.ValidatorResult;
 import com.miaoshashop.miaoshashop.dao.ItemDOMapper;
 import com.miaoshashop.miaoshashop.dao.ItemStockDOMapper;
+import com.miaoshashop.miaoshashop.dataobject.ItemDO;
 import com.miaoshashop.miaoshashop.dataobject.ItemStockDO;
 import com.miaoshashop.miaoshashop.service.ItemService;
 import com.miaoshashop.miaoshashop.service.model.ItemModel;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 
+@Service
 public class ItemServiceImpl implements ItemService {
 
     @Autowired
@@ -35,8 +40,12 @@ public class ItemServiceImpl implements ItemService {
         }
 
         //转化model 至 dataObject
-
-
+        ItemDO itemDO = convertFromItemModel(itemModel);
+        itemDOMapper.insertSelective(itemDO);
+        ItemStockDO itemStockDO = new ItemStockDO();
+        itemStockDO.setItemId(itemDO.getId());
+        itemStockDO.setStock(itemModel.getStock());
+        itemStockDOMapper.insertSelective(itemStockDO);
         return null;
     }
 
@@ -47,7 +56,9 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemModel getItemModelById(int id) {
-        return null;
+        ItemDO itemDO = itemDOMapper.selectByPrimaryKey(id);
+        ItemStockDO itemStockDO = itemStockDOMapper.selectByItemId(id);
+       return  convertFromDO(itemDO, itemStockDO);
     }
 
     @Transactional
@@ -69,4 +80,36 @@ public class ItemServiceImpl implements ItemService {
 //        int i = itemStockDOMapper.updateByPrimaryKeySelective(itemStockDO);
 //        return i>0;
     }
+
+    @Override
+    public int updateItem(ItemModel itemModel) {
+        ItemDO itemDO = convertFromItemModel(itemModel);
+        return itemDOMapper.updateByPrimaryKeySelective(itemDO);
+    }
+
+    private ItemDO convertFromItemModel(ItemModel itemModel){
+        if(itemModel == null){
+            return null;
+        }
+
+        ItemDO itemDO = new ItemDO();
+        BeanUtils.copyProperties(itemModel, itemDO);
+        itemDO.setPrice(itemModel.getPrice().doubleValue());
+        return itemDO;
+    }
+
+    private ItemModel convertFromDO(ItemDO itemDO, ItemStockDO itemStockDO){
+        if(itemDO == null){
+            return null;
+        }
+        ItemModel itemModel = new ItemModel();
+        BeanUtils.copyProperties(itemDO, itemModel);
+        itemModel.setPrice(new BigDecimal(itemDO.getPrice()));
+        if(itemStockDO != null){
+            itemModel.setStock(itemStockDO.getStock());
+        }
+        return itemModel;
+    }
+
+
 }

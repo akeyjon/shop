@@ -8,7 +8,6 @@ import com.miaoshashop.miaoshashop.common.utils.BeanConvert;
 import com.miaoshashop.miaoshashop.common.utils.MD5Utils;
 import com.miaoshashop.miaoshashop.controller.viewobject.UserRegisterVO;
 import com.miaoshashop.miaoshashop.controller.viewobject.UserVO;
-import com.miaoshashop.miaoshashop.dataobject.UserInfoDO;
 import com.miaoshashop.miaoshashop.service.UserService;
 import com.miaoshashop.miaoshashop.service.model.UserModel;
 import io.swagger.annotations.Api;
@@ -26,7 +25,7 @@ import java.util.Random;
 @RestController
 @RequestMapping("/user")
 @Api(tags = "用户服务")
-public class UserController {
+public class UserController extends BaseController{
 
     @Autowired
     private UserService userService;
@@ -43,6 +42,8 @@ public class UserController {
         UserModel userModel = userService.getUserByPhone(phone);
         String encretPassword = MD5Utils.encode(password);
         if(StringUtils.equals(userModel.getEncrptPassword(), encretPassword)){
+            httpServletRequest.getSession().setAttribute(BaseController.LOGIN_STATUS,true);
+            httpServletRequest.getSession().setAttribute(BaseController.USER_INFO,userModel);
             return ResponseResult.ok();
         }
         return ResponseResult.fail("登陆失败");

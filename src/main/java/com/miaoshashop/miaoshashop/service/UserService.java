@@ -1,6 +1,5 @@
 package com.miaoshashop.miaoshashop.service;
 
-import com.miaoshashop.miaoshashop.dataobject.UserInfoDO;
 import com.miaoshashop.miaoshashop.service.model.UserModel;
 
 public interface UserService {

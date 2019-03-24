@@ -35,4 +35,6 @@ public interface ItemService {
      */
     boolean dcreaseStock(int itemId, int amount) throws BusinessException;
 
+    int updateItem(ItemModel itemModel);
+
 }
